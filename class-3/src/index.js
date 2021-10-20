@@ -11,6 +11,9 @@ const App = (props) => {
   const handleIncreaseCounterClick = () => {
     setCounterValue(counterValue + 1)
   }
+  const handleDecreaseCounterClick = () => {
+    setCounterValue(counterValue - 1)
+  }
 
   const handleResetCounterClick = () => {
     setCounterValue(0)
@@ -26,6 +29,9 @@ const App = (props) => {
       <p>{messageIsEven}</p>
       <button onClick={handleIncreaseCounterClick}>
       Incrementar
+      </button>
+      <button onClick={handleDecreaseCounterClick}>
+      Decrementar
       </button>
       <button onClick={handleResetCounterClick}>
       Reset

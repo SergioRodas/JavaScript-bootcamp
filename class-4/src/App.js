@@ -1,36 +1,50 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './App.css'
 import { Note } from './Note'
 
-const notes = [
-  {
-    id: 1,
-    content: 'HTML is easy',
-    date: '2019-05-30T17:30:31.098Z',
-    important: true,
-  },
-  {
-    id: 2,
-    content: 'Browser can execute only JavaScript',
-    date: '2019-05-30T18:39:34.091Z',
-    important: false,
-  },
-  {
-    id: 3,
-    content: 'GET and POST are the most important methods of HTTP protocol',
-    date: '2019-05-30T19:20:14.298Z',
-    important: true,
-  },
-]
+export default function App(props) {
+    const [notes, setNotes ] = useState(props.notes)
+    const [newNote, setNewNote] = useState('')
+    const [showAll, setShowAll] = useState(true)
 
-
-export default function App() {
-    if (!notes || typeof notes === "undefined" || notes.length === 0) {
-        return "No tenemos notas que mostrar"
+    const handleChange = (event) => {
+      setNewNote(event.target.value)
     }
+    
+    const handleSubmit = (event) => {
+      event.preventDefault()
+      const noteToAddToState = {
+        id: notes.length + 1,
+        content: newNote,
+        date: new Date().toISOString(),
+        important: Math.random() < 0.5
+      }
+      setNotes([...notes, noteToAddToState])
+      setNewNote('')
+    }
+
+    const handleShowAll = () => {
+      setShowAll(() => !showAll)
+    }
+
     return (
+      <div>
+        <h1>Notas</h1>
+        <button onClick={handleShowAll}>{showAll ? 'Mostrar solo lo importante' : 'Mostrar todo'}</button>
         <ul>
-            {notes.map(note => <Note key={note.id} id={note.id} content={note.content} date={note.date}/>)}
+            {notes
+            /* filter should always return a boolean */
+            .filter((note) => {
+              if (showAll === true) return true
+              return note.important === true
+            })
+            .map(note => <Note key={note.id} id={note.id} content={note.content} date={note.date}/>)}
         </ul>
+        <form onSubmit={handleSubmit}>
+          <input type="text" onChange={handleChange} value={newNote}/>
+          {/* by default the last button of a form works as a submit */}
+          <button>Crear nota</button>
+        </form>
+      </div>
     )
 }

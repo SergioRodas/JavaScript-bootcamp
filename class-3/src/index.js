@@ -25,21 +25,23 @@ const App = () => {
 
     const [clicks, setClicks] = useState([])
 
-    const handleClickLeft = () => {
-        
-        setCounters({
-            ...counters, // Spread operator: Keep the previous state properties, just change the ones mentioned below
-            left: counters.left + 1
-        })
-        setClicks(prevClicks =>  ([...prevClicks, 'L']))
-    }
-    
-    const handleClickRight = () => {
-        setCounters({
-            ...counters,
-            right: counters.right + 1
-        })
-        setClicks(prevClicks =>  ([...prevClicks, 'R']))
+    const handleIsLeft = (param) => {
+        const handler = () => {
+            if (param) {
+                setCounters({
+                    ...counters, // Spread operator: Keep the previous state properties, just change the ones mentioned below
+                    left: counters.left + 1
+                })
+                setClicks(prevClicks =>  ([...prevClicks, 'L']))
+            } else {
+                setCounters({
+                    ...counters,
+                    right: counters.right + 1
+                })
+                setClicks(prevClicks =>  ([...prevClicks, 'R']))
+            }
+        }
+        return handler
     }
 
     const handleReset = () => {
@@ -50,10 +52,10 @@ const App = () => {
     return(
         <div>
             {counters.left}
-            <button onClick={handleClickLeft}>
+            <button onClick={handleIsLeft(true)}>
                 Left
             </button>
-            <button onClick={handleClickRight}>
+            <button onClick={handleIsLeft(false)}>
                 Right
             </button>
             {counters.right}

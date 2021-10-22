@@ -1,5 +1,6 @@
 import React from 'react'
 import './App.css'
+import { Note } from './Note'
 
 const notes = [
   {
@@ -22,16 +23,6 @@ const notes = [
   },
 ]
 
-const Note = ({ id, content, date }) => {
-    return (
-    <li>
-        <p>{content}</p>
-        <small>
-            <time>{date}</time>
-        </small>
-    </li>
-    )
-}
 
 export default function App() {
     if (!notes || typeof notes === "undefined" || notes.length === 0) {

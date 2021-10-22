@@ -1,5 +1,4 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import './App.css'
 
 const notes = [
@@ -23,18 +22,24 @@ const notes = [
   },
 ]
 
-export default function App() {
+const Note = ({ id, content, date }) => {
     return (
-        <div>
-            {notes.map((note) => {
-                return <div>
-                    <p>{note.content}</p>
-                    <small>
-                        <time>{note.date}</time>
-                    </small>
-                    
-                </div>
-            })}
-        </div>
+    <li>
+        <p>{content}</p>
+        <small>
+            <time>{date}</time>
+        </small>
+    </li>
+    )
+}
+
+export default function App() {
+    if (!notes || typeof notes === "undefined" || notes.length === 0) {
+        return "No tenemos notas que mostrar"
+    }
+    return (
+        <ul>
+            {notes.map(note => <Note key={note.id} id={note.id} content={note.content} date={note.date}/>)}
+        </ul>
     )
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './App.css'
 import { Note } from './Note'
+import axios from 'axios'
 
 export default function App() {
     const [notes, setNotes ] = useState([])
@@ -9,13 +10,14 @@ export default function App() {
 
     useEffect(() => {
       setLoding(true)
-      setTimeout(() => {
-        fetch('https://jsonplaceholder.typicode.com/posts')
-        .then(response => response.json())
-        .then(json => setNotes(json))
-        setLoding(false)
-      }, 2000)
-    }, [])
+        axios
+          .get('https://jsonplaceholder.typicode.com/posts')
+          .then((response) => {
+          const { data } = response
+          setNotes(data)
+          setLoding(false)
+        })
+     }, [])
 
     const handleChange = (event) => {
       setNewNote(event.target.value)

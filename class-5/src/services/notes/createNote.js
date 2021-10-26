@@ -7,4 +7,5 @@ export const createNote = ({ title, body, userId}) => {
            const {data} = response
            return data
         })
+        .catch(e => console.log(e))
 }

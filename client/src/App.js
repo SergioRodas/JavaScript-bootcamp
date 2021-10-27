@@ -43,15 +43,18 @@ export default function App() {
 
     return (
       <div>
-        <h1>Notas</h1>
+        <h1 className="title">Notas</h1>
         {
           loading ? 'Cargando...' : "" 
         }
-        <ol>
-            {notes
-            .map(note => <Note key={note.id} {...note}/>)}
-        </ol>
-        <form onSubmit={handleSubmit}>
+        {notes ?
+          <ul>
+              {notes
+              .map(note => <Note key={note.id} {...note}/>)}
+          </ul>
+        : <p className="error-loading-notes">No hay notas disponibles</p>
+        }
+        <form onSubmit={handleSubmit} className="create-note-form">
           <input type="text" onChange={handleChange} value={newNote}/>
           {/* by default the last button of a form works as a submit */}
           <button>Crear nota</button>

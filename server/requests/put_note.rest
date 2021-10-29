@@ -1,0 +1,7 @@
+PUT http://localhost:3001/api/notes/617b2c7e7655e7f272a600dd
+Content-Type: application/json
+
+{
+    "content" : "El bootcamp va genial!",
+    "important": true
+}

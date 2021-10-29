@@ -2,3 +2,4 @@
 node_modules
 /password.js
 password.js
+.env

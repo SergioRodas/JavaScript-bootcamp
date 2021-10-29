@@ -2,6 +2,8 @@ require('dotenv').config()
 require('./mongo')
 
 const express = require('express')
+const Sentry = require('@sentry/node')
+const Tracing = require("@sentry/tracing")
 const cors = require('cors')
 const Note = require('./models/Note')
 const notFound = require('./middleware/notFound')
@@ -9,16 +11,32 @@ const handleErrors = require('./middleware/handleErrors')
 
 const app = express()
 
-
-
 //Cross-origin resource sharing
 app.use(cors())
 
-//body-parser
+//Body-parser
 app.use(express.json())
+
+//Serve static files
+app.use('/images', express.static('images'))
 
 // const logger = require('./loggerMiddleware')
 // app.use(logger)
+
+Sentry.init({
+	dsn: "https://0a561992474b4d39899cd66b1c8b9509@o1055616.ingest.sentry.io/6041725",
+	integrations: [
+	  // enable HTTP calls tracing
+	  new Sentry.Integrations.Http({ tracing: true }),
+	  // enable Express.js middleware tracing
+	  new Tracing.Integrations.Express({ app }),
+	],
+  
+	// Set tracesSampleRate to 1.0 to capture 100%
+	// of transactions for performance monitoring.
+	// We recommend adjusting this value in production
+	tracesSampleRate: 1.0,
+  })
 
 
 app.get('/', (request, response) => {
@@ -31,16 +49,10 @@ app.get('/api/notes', (request, response) => {
 })
 app.get('/api/notes/:id', (request, response, next) => {
 	const { id } = request.params
-	Note.findById(id).then(note => {
-		if (note) {
-			response.json(note)
-		} else {
-			//not found
-			response.status(404).end()
-		}
-	}).catch(error => {
-		next(error)
-	})
+	Note.findById(id)
+		.then(note => {
+			return note ? response.json(note) : response.status(404).end()
+		}).catch(next)
 })
 
 app.put('/api/notes/:id', (request, response, next) => {
@@ -84,6 +96,7 @@ app.post('/api/notes', (request, response) => {
 })
 
 app.use(notFound)
+app.use(Sentry.Handlers.errorHandler())
 app.use(handleErrors)
 
 const PORT = process.env.PORT

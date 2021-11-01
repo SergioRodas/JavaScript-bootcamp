@@ -1,22 +1,8 @@
 const mongoose = require('mongoose')
-const supertest = require('supertest')
-const {app, server} = require('../index')
+const {server} = require('../index')
 const Note = require('../models/Note')
 
-const api = supertest(app)
-
-const initialNotes = [
-    {
-        content: 'Aprendiendo FullStack JS con Midudev',
-        important: true,
-        date: new Date()
-    },
-    {
-        content: 'Este año voy a conseguir trabajo',
-        important: true,
-        date: new Date()
-    }
-]
+const { api, initialNotes, getAllContentFromNotes } = require('./helpers')
 
 beforeEach(async () => {
     await Note.deleteMany({})
@@ -47,9 +33,41 @@ test('thre first note is about Bootcamp with Midudev', async () => {
 })
 
 test('some note should talk about the job', async () => {
-    const response = await api.get('/api/notes')
-    const contents = response.body.map(note => note.content)
+    const { contents } = await getAllContentFromNotes()
     expect(contents).toContain('Este año voy a conseguir trabajo')
+})
+
+test('a valid note can be added', async () => {
+    const newNote = {
+        content: 'Proximamente TDD',
+        important: true
+    }
+
+    await api
+        .post('/api/notes')
+        .send(newNote)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    const { response, contents } = await getAllContentFromNotes()
+    
+    expect(response.body).toHaveLength(initialNotes.length + 1)
+    expect(contents).toContain(newNote.content)
+})
+
+test('note without content is not added', async () => {
+    const newNote = {
+        important: true
+    }
+
+    await api
+        .post('/api/notes')
+        .send(newNote)
+        .expect(400)
+
+    const response = await api.get('/api/notes')
+    
+    expect(response.body).toHaveLength(initialNotes.length)
 })
 
 afterAll(() => {

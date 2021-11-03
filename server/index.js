@@ -42,10 +42,9 @@ Sentry.init({
 app.get('/', (request, response) => {
 	response.send('<h1>Hello World</h1>')
 })
-app.get('/api/notes', (request, response) => {
-	Note.find({}).then(notes => {
+app.get('/api/notes', async (request, response) => {
+	const notes = await Note.find({})
 		response.json(notes)
-	})
 })
 app.get('/api/notes/:id', (request, response, next) => {
 	const { id } = request.params
@@ -68,14 +67,18 @@ app.put('/api/notes/:id', (request, response, next) => {
 		})
 })
 
-app.delete('/api/notes/:id', (request, response, next) => {
-	const {id} = request.params
-	Note.findByIdAndDelete(id).then(() => {
+app.delete('/api/notes/:id', async (request, response, next) => {
+	try {
+			const {id} = request.params
+		await Note.findByIdAndDelete(id)
 		response.status(204).end()
-	}).catch(error => next(error))
+	} catch (error) {
+		next(error)
+	}
+
 })
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/notes', async (request, response, next) => {
 	const note = request.body
 
 	if (!note.content) {
@@ -87,12 +90,19 @@ app.post('/api/notes', (request, response) => {
 	const newNote = new Note({
 		content: note.content,
 		date: new Date(),
-		important: typeof note.important !== 'undefined' ? note.important : false
+		important: note.important || false
 	})
+	
+	// newNote.save().then(savedNote => {
+	// 	response.json(savedNote)
+	// }).catch(err => next(err))
 
-	newNote.save().then(savedNote => {
+	try {	
+		const savedNote = await newNote.save()
 		response.json(savedNote)
-	})
+	} catch (error) {
+		next(error)
+	}
 })
 
 app.use(notFound)

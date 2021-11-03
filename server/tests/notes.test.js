@@ -7,12 +7,18 @@ const { api, initialNotes, getAllContentFromNotes } = require('./helpers')
 beforeEach(async () => {
     await Note.deleteMany({})
 
-    const note1 = new Note(initialNotes[0])
-    await note1.save()
+    //// parallel
 
-    const note2 = new Note(initialNotes[1])
-    await note2.save()
+    // const notesObject = initialNotes.map(note => new Note(note))
+    // const promises = notesObject.map(note => note.save())
+    // await Promise.all(promises)
 
+    // sequential
+
+    for(const note of initialNotes) {
+        const noteObject = new Note(note)
+        await noteObject.save()
+    }
 })
 
 test('notes are returned as json', async () => {
@@ -66,6 +72,31 @@ test('note without content is not added', async () => {
         .expect(400)
 
     const response = await api.get('/api/notes')
+    
+    expect(response.body).toHaveLength(initialNotes.length)
+})
+
+test('a note can be deleted', async () => {
+    const { response: firstResponse } = await getAllContentFromNotes()
+    const {body: notes} = firstResponse
+    const noteToDelete = notes[0]
+    await api
+        .delete(`/api/notes/${noteToDelete.id}`)
+        .expect(204)
+        
+    const { contents, response: secondResponse } = await getAllContentFromNotes()
+    
+    expect(secondResponse.body).toHaveLength(initialNotes.length - 1)
+
+    expect(contents).not.toContain(noteToDelete.content)
+})
+
+test('a note that do not exist can not be deleted', async () => {
+    await api
+        .delete(`/api/notes/1234`)
+        .expect(400)
+        
+    const { response } = await getAllContentFromNotes()
     
     expect(response.body).toHaveLength(initialNotes.length)
 })

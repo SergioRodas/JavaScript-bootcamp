@@ -8,6 +8,7 @@ const cors = require('cors')
 const Note = require('./models/Note')
 const notFound = require('./middleware/notFound')
 const handleErrors = require('./middleware/handleErrors')
+const usersRouter = require('./controllers/users')
 
 const app = express()
 
@@ -104,6 +105,8 @@ app.post('/api/notes', async (request, response, next) => {
 		next(error)
 	}
 })
+
+app.use('/api/users', usersRouter)
 
 app.use(notFound)
 app.use(Sentry.Handlers.errorHandler())

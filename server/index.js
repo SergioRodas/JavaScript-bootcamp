@@ -5,10 +5,10 @@ const express = require('express')
 const Sentry = require('@sentry/node')
 const Tracing = require("@sentry/tracing")
 const cors = require('cors')
-const Note = require('./models/Note')
 const notFound = require('./middleware/notFound')
 const handleErrors = require('./middleware/handleErrors')
 const usersRouter = require('./controllers/users')
+const notesRouter = require('./controllers/notes')
 
 const app = express()
 
@@ -43,68 +43,8 @@ Sentry.init({
 app.get('/', (request, response) => {
 	response.send('<h1>Hello World</h1>')
 })
-app.get('/api/notes', async (request, response) => {
-	const notes = await Note.find({})
-		response.json(notes)
-})
-app.get('/api/notes/:id', (request, response, next) => {
-	const { id } = request.params
-	Note.findById(id)
-		.then(note => {
-			return note ? response.json(note) : response.status(404).end()
-		}).catch(next)
-})
 
-app.put('/api/notes/:id', (request, response, next) => {
-	const {id} = request.params
-	const note = request.body
-	const newNoteInfo = {
-		content: note.content,
-		important: note.important
-	}
-	Note.findByIdAndUpdate(id, newNoteInfo, { new: true })
-		.then(result => {
-			response.json(result)
-		})
-})
-
-app.delete('/api/notes/:id', async (request, response, next) => {
-	try {
-			const {id} = request.params
-		await Note.findByIdAndDelete(id)
-		response.status(204).end()
-	} catch (error) {
-		next(error)
-	}
-
-})
-
-app.post('/api/notes', async (request, response, next) => {
-	const note = request.body
-
-	if (!note.content) {
-		return response.status(400).json({
-			error: 'required "content" field is missing',
-		})
-	}
-
-	const newNote = new Note({
-		content: note.content,
-		date: new Date(),
-		important: note.important || false
-	})
-	
-	// newNote.save().then(savedNote => {
-	// 	response.json(savedNote)
-	// }).catch(err => next(err))
-
-	try {	
-		const savedNote = await newNote.save()
-		response.json(savedNote)
-	} catch (error) {
-		next(error)
-	}
-})
+app.use('/api/notes', notesRouter)
 
 app.use('/api/users', usersRouter)
 

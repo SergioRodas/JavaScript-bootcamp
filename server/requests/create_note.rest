@@ -2,13 +2,7 @@ POST http://localhost:3001/api/notes
 Content-Type: application/json
 
 {
-    "content" : "Esto es una nueva nota completa"
-}
-
-###
-
-POST http://localhost:3001/api/notes 
-Content-Type: application/json
-
-{
+    "content" : "Esto es una nueva nota completa",
+    "important" : true,
+    "userId" : "618dcb12c2096c80ffbe959b"
 }
